@@ -217,6 +217,75 @@ objects:
           name: ${APPLICATION_NAME}:latest
       type: ImageChange
     - type: ConfigChange
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      application: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}-s2i
+  spec:
+    replicas: 1
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}-s2i
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          application: ${APPLICATION_NAME}
+          deploymentConfig: ${APPLICATION_NAME}-s2i
+        name: ${APPLICATION_NAME}-s2i
+      spec:
+        containers:
+        - env:
+          - name: JAVA_OPTS_APPEND
+            value: ${JAVA_OPTS_APPEND}
+          image: ${APPLICATION_NAME}-s2i
+          imagePullPolicy: Always
+          name: ${APPLICATION_NAME}-s2i-container
+          ports:
+          - containerPort: 8080
+            name: http
+            protocol: TCP
+          - containerPort: 8443
+            name: https
+            protocol: TCP
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /fruits
+              port: 8080
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /fruits
+              port: 8080
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 512Mi
+            requests:
+              cpu: 500m
+              memory: 256Mi
+        terminationGracePeriodSeconds: 75
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${APPLICATION_NAME}-s2i-container
+        from:
+          kind: ImageStreamTag
+          name: ${APPLICATION_NAME}-s2i:latest
+      type: ImageChange
+    - type: ConfigChange
 parameters:
 - description: The name for the application.
   displayName: Application Name
