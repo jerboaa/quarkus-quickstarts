@@ -24,6 +24,20 @@ public class FruitResource {
         return fruits;
     }
 
+    @GET
+    @Path("name/{name}")
+    public Fruit getOne(String name) {
+        Fruit[] fs = fruits.toArray(new Fruit[] {});
+        Fruit f = null;
+        for (int i = 0; i < fs.length; i++) {
+            if (fs[i].name.equals(name)) {
+                f = fs[i];
+                break;
+            }
+        }
+        return f;
+    }
+
     @POST
     public Set<Fruit> add(Fruit fruit) {
         fruits.add(fruit);
