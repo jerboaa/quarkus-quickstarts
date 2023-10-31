@@ -129,6 +129,8 @@ objects:
       dockerfile: |-
         FROM -
         COPY /deployments/* /deployments/
+        ENV JAVA_APP_JAR=quarkus-run.jar
+        ENV JAVA_APP_DIR=/deployments/quarkus-app
         ENV JAVA_OPTS_APPEND="${JAVA_OPTS_APPEND}"
       images:
       - from:
@@ -201,10 +203,10 @@ objects:
             timeoutSeconds: 1
           resources:
             limits:
-              cpu: 1000m
-              memory: 512Mi
+              cpu: 2000m
+              memory: 256Mi
             requests:
-              cpu: 500m
+              cpu: 2000m
               memory: 256Mi
         terminationGracePeriodSeconds: 75
     triggers:
@@ -231,7 +233,7 @@ parameters:
 - description: Git branch/tag reference
   displayName: Git Reference
   name: SOURCE_REPOSITORY_REF
-  value: quickstart-3.4-s2i-cds
+  value: quickstart-3.4-s2i-cds-fastjar
 - description: Path within Git project to build; empty for root project directory.
   displayName: Context Directory
   name: CONTEXT_DIR
@@ -257,5 +259,5 @@ parameters:
   name: JAVA_OPTS_APPEND
   required: true
   value: -XX:+UseCompressedClassPointers -XX:+UseCompressedOops
-    -Xshare:on -XX:SharedArchiveFile=/deployments/app-cds.jsa
+    -Xshare:on -XX:SharedArchiveFile=app-cds.jsa
     -Dquarkus.http.host=0.0.0.0
